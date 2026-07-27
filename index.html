@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#f6f7fb" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<title>Trip Memory</title>
+<style>
+:root{
+  --bg:#fff8f3;--surface:#ffffff;--surface2:#fff0e7;--text:#252238;--muted:#7a7486;--line:rgba(72,54,87,.11);
+  --accent:#ff6b6b;--accent2:#ffb45e;--forest:#5c63e8;--sea:#57b8d9;--success:#35b984;--danger:#e84f62;
+  --shadow:0 18px 55px rgba(42,44,38,.10);--radius:26px;--nav:rgba(250,247,240,.88);
+}
+html[data-theme="dark"]{
+  --bg:#171623;--surface:#222033;--surface2:#2d2940;--text:#fff8f2;--muted:#b4adbf;--line:rgba(255,255,255,.10);
+  --accent:#ff7b7b;--accent2:#ffc26b;--forest:#8f96ff;--sea:#62c7e8;--success:#5bd5a3;--danger:#ff7686;
+  --shadow:0 20px 60px rgba(0,0,0,.30);--nav:rgba(17,22,20,.88);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:"Arial Rounded MT Bold","Hiragino Maru Gothic ProN","Yu Gothic",-apple-system,BlinkMacSystemFont,sans-serif;transition:background .25s,color .25s}
+body{min-height:100vh;padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+button,input,select,textarea{font:inherit}button{cursor:pointer}.app{max-width:780px;margin:0 auto;min-height:100vh}
+header{padding:calc(22px + env(safe-area-inset-top)) 20px 10px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:46px;height:46px;border-radius:50% 50% 46% 54%;background:var(--forest);display:grid;place-items:center;color:var(--bg);font-size:20px;transform:rotate(-7deg);box-shadow:var(--shadow)}.logo::after{content:"";position:absolute}
+.brand h1{font-family:"Arial Rounded MT Bold","Hiragino Maru Gothic ProN","Yu Gothic",sans-serif;font-size:24px;letter-spacing:.2px;margin:0}.brand small{display:block;color:var(--muted);margin-top:3px;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+.icon-btn{width:44px;height:44px;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:50%;box-shadow:none;font-size:19px}
+main{padding:6px 18px 34px}.view{display:none}.view.active{display:block}
+.hero{position:relative;min-height:315px;border-radius:34px;padding:28px 24px;overflow:hidden;color:white;background:linear-gradient(135deg,rgba(16,52,46,.92),rgba(24,56,74,.96)),radial-gradient(circle at 80% 20%,rgba(255,255,255,.18),transparent 34%);box-shadow:var(--shadow)}
+.hero:before{content:"JOURNAL";position:absolute;right:-12px;top:30px;font:800 58px/1 "Arial Rounded MT Bold","Hiragino Maru Gothic ProN",sans-serif;letter-spacing:.08em;color:rgba(255,255,255,.055);transform:rotate(90deg)}.hero:after{content:"✦";position:absolute;right:25px;bottom:26px;font-size:84px;color:rgba(255,255,255,.07)}
+.hero h2{font:800 39px/1.05 "Arial Rounded MT Bold","Hiragino Maru Gothic ProN",sans-serif;margin:14px 0 10px;max-width:310px}.hero p{margin:0;max-width:330px;color:rgba(255,255,255,.72);font-size:14px;line-height:1.7}
+.stats{position:absolute;left:22px;right:22px;bottom:22px;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.16);border-radius:20px;overflow:hidden;backdrop-filter:blur(10px)}.stat{padding:14px 8px;text-align:center;background:rgba(3,15,13,.14)}.stat strong{font:800 25px/1 "Arial Rounded MT Bold","Hiragino Maru Gothic ProN",sans-serif;display:block}.stat span{color:rgba(255,255,255,.65);font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+.section-title{display:flex;justify-content:space-between;align-items:center;margin:30px 2px 13px}.section-title h3{margin:0;font:800 21px "Arial Rounded MT Bold","Hiragino Maru Gothic ProN",sans-serif}.link-btn{border:0;background:none;color:var(--accent);font-weight:700}
+.card{background:var(--surface);border-radius:var(--radius);box-shadow:none;border:1px solid var(--line)}
+.trip-card{overflow:hidden;margin-bottom:18px;border:0;box-shadow:var(--shadow);transform:translateZ(0)}.trip-cover{height:245px;background:linear-gradient(135deg,#6d8b78,#203b43);position:relative;display:flex;align-items:flex-end;background-size:cover;background-position:center}.trip-cover .shade{position:absolute;inset:0;background:linear-gradient(transparent 22%,rgba(8,15,14,.78))}.trip-cover .cover-text{position:relative;color:white;padding:22px;width:100%}.trip-cover h4{font:800 27px "Arial Rounded MT Bold","Hiragino Maru Gothic ProN",sans-serif;margin:0 0 5px}.trip-cover p{margin:0;font-size:12px;opacity:.82;letter-spacing:.04em}.trip-meta{display:flex;gap:8px;flex-wrap:wrap;padding:13px 16px 16px;background:var(--surface)}
+.chip{font-size:11px;padding:7px 10px;background:var(--surface2);color:var(--muted);border-radius:999px;border:1px solid var(--line)}.empty{padding:38px 24px;text-align:center;color:var(--muted)}.empty .emoji{font-size:38px;margin-bottom:10px}.primary{border:0;background:var(--accent);color:#fff;padding:13px 18px;border-radius:999px;font-weight:800;box-shadow:0 10px 24px color-mix(in srgb,var(--accent) 24%, transparent)}.secondary{border:1px solid var(--line);background:var(--surface);color:var(--text);padding:12px 16px;border-radius:999px;font-weight:700}.danger{color:var(--danger)}
+.album-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.album-card{overflow:hidden;border:0;background:transparent}.album-thumb{aspect-ratio:.86;background:var(--surface2);background-size:cover;background-position:center;border-radius:22px}.album-body{padding:10px 4px}.album-body h4{font:800 18px "Arial Rounded MT Bold","Hiragino Maru Gothic ProN",sans-serif;margin:0 0 4px}.album-body p{margin:0;color:var(--muted);font-size:11px}
+.map-card{padding:0;border:0;background:transparent}.map-wrap{position:relative;aspect-ratio:570/755;background:radial-gradient(circle at 70% 18%,rgba(87,149,174,.24),transparent 28%),linear-gradient(165deg,#102a38 0%,#0a202c 58%,#06151e 100%);border-radius:34px;overflow:hidden;box-shadow:var(--shadow);isolation:isolate}.map-wrap:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 24% 82%,rgba(255,255,255,.055),transparent 20%),linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:auto,42px 42px,42px 42px;pointer-events:none}.map-wrap:after{content:"JAPAN  •  TRAVEL MAP";position:absolute;left:22px;top:20px;color:rgba(255,255,255,.56);font-size:10px;font-weight:800;letter-spacing:.18em;z-index:4}.map-art{position:absolute;inset:55px 30px 72px;display:grid;place-items:center}.japan-map-svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 18px 24px rgba(0,0,0,.28));user-select:none}.japan-land path{fill:rgba(245,247,244,.92);stroke:rgba(255,255,255,.42);stroke-width:1.2;vector-effect:non-scaling-stroke}.map-detail-lines path{fill:none;stroke:rgba(12,35,45,.18);stroke-width:1;stroke-linecap:round;vector-effect:non-scaling-stroke}html[data-theme="dark"] .japan-land path{fill:rgba(230,237,232,.88);stroke:rgba(255,255,255,.32)}.map-pin-layer{position:absolute;inset:0;pointer-events:none}.pin{position:absolute;z-index:5;transform:translate(-50%,-100%) rotate(-45deg);width:27px;height:27px;border-radius:50% 50% 50% 5px;border:2px solid rgba(255,255,255,.96);background:var(--accent);box-shadow:0 0 0 5px rgba(255,122,85,.14),0 8px 18px rgba(0,0,0,.34);padding:0;pointer-events:auto}.pin:after{content:"";position:absolute;width:7px;height:7px;background:white;border-radius:50%;left:8px;top:8px}.pin span{display:none}.map-caption{position:absolute;left:20px;right:20px;bottom:17px;z-index:4;display:flex;justify-content:space-between;align-items:flex-end;color:white;pointer-events:none}.map-caption strong{font:800 34px "Arial Rounded MT Bold","Hiragino Maru Gothic ProN",sans-serif}.map-caption small{display:block;color:rgba(255,255,255,.58);font-size:10px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;max-width:130px;text-align:right}.map-caption>div small{text-align:left}.map-legend{display:flex;justify-content:space-between;align-items:center;padding:13px 7px 0;color:var(--muted);font-size:12px}
+.form-card{padding:18px}.field{margin-bottom:16px}.field label{display:block;font-size:12px;font-weight:800;margin-bottom:7px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:16px;padding:13px 14px;outline:none}.field textarea{min-height:86px;resize:vertical}.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 12%, transparent)}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.form-actions{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}.hint{font-size:12px;color:var(--muted);line-height:1.6}.notice{padding:13px 14px;border-radius:16px;background:var(--surface2);color:var(--muted);font-size:13px;margin-bottom:14px}.success{color:var(--success)}
+.detail-head{position:relative;border-radius:34px;overflow:hidden;min-height:390px;background:linear-gradient(135deg,#5d7a69,#263e43);background-size:cover;background-position:center;display:flex;align-items:flex-end;box-shadow:var(--shadow)}.detail-head:after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 25%,rgba(5,12,11,.80))}.detail-head .inner{position:relative;z-index:1;color:#fff;padding:24px;width:100%}.detail-head h2{font:800 34px "Arial Rounded MT Bold","Hiragino Maru Gothic ProN",sans-serif;margin:0 0 8px}.detail-head p{margin:4px 0;opacity:.85}.place-block{margin-top:20px}.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.photo{aspect-ratio:1;background:var(--surface2) center/cover;border-radius:4px;position:relative;overflow:hidden}.photo button{position:absolute;right:5px;top:5px;width:30px;height:30px;border:0;border-radius:50%;background:rgba(255,255,255,.88)}
+.settings-list{overflow:hidden}.setting-row{padding:16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);gap:12px}.setting-row:last-child{border-bottom:0}.setting-row small{display:block;color:var(--muted);margin-top:3px}
+.toggle{width:52px;height:30px;border:0;border-radius:999px;background:var(--surface2);padding:3px;transition:.2s}.toggle i{display:block;width:24px;height:24px;border-radius:50%;background:var(--surface);box-shadow:0 2px 7px rgba(0,0,0,.18);transition:.2s}.toggle.on{background:var(--accent)}.toggle.on i{transform:translateX(22px);background:#fff}
+.bottom-nav{position:fixed;left:50%;transform:translateX(-50%);bottom:10px;width:min(720px,calc(100% - 24px));background:var(--nav);backdrop-filter:blur(22px);border:1px solid var(--line);border-radius:26px;padding:7px 10px calc(7px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(4,1fr);z-index:20;box-shadow:0 14px 45px rgba(0,0,0,.12)}.nav-btn{border:0;background:none;color:var(--muted);padding:8px 4px;font-size:10px;font-weight:700}.nav-btn b{display:block;font-size:20px;line-height:1.1;margin-bottom:3px}.nav-btn.active{color:var(--accent)}.nav-add b{width:42px;height:42px;display:grid;place-items:center;margin:-18px auto 3px;border-radius:50%;color:#fff;background:var(--accent);box-shadow:0 8px 20px color-mix(in srgb,var(--accent) 32%, transparent)}
+.modal{position:fixed;inset:0;background:rgba(4,8,7,.56);display:none;align-items:flex-end;z-index:50;backdrop-filter:blur(8px)}.modal.open{display:flex}.sheet{background:var(--bg);color:var(--text);width:min(780px,100%);margin:0 auto;border-radius:30px 30px 0 0;max-height:90vh;overflow:auto;padding:14px 16px calc(24px + env(safe-area-inset-bottom));box-shadow:0 -20px 60px rgba(0,0,0,.20)}.grab{width:42px;height:5px;border-radius:99px;background:var(--line);margin:2px auto 14px}.sheet h3{font:500 23px Georgia,serif;margin:0 0 14px}.sheet-close{float:right;border:1px solid var(--line);background:var(--surface);color:var(--text);width:35px;height:35px;border-radius:50%}.inline-actions{display:flex;gap:8px;flex-wrap:wrap}.file-input{display:none}.toast{position:fixed;left:50%;bottom:112px;transform:translateX(-50%) translateY(20px);background:var(--text);color:var(--bg);padding:11px 15px;border-radius:999px;opacity:0;pointer-events:none;transition:.2s;z-index:80;font-size:12px;max-width:90%;text-align:center}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.home-memory{position:relative;min-height:410px;border-radius:36px;overflow:hidden;background:linear-gradient(150deg,#25483f,#17394a);box-shadow:var(--shadow);background-size:cover;background-position:center;isolation:isolate}
+.home-memory:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(5,12,11,.08) 0%,rgba(5,12,11,.10) 30%,rgba(5,12,11,.82) 100%);z-index:1}
+.home-memory:after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 78% 16%,rgba(255,255,255,.18),transparent 30%);z-index:1;pointer-events:none}
+.memory-kicker{position:absolute;left:22px;top:22px;z-index:2;color:white;font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;padding:8px 11px;border:1px solid rgba(255,255,255,.28);border-radius:999px;background:rgba(5,12,11,.18);backdrop-filter:blur(12px)}
+.memory-copy{position:absolute;left:22px;right:22px;bottom:22px;z-index:2;color:white}.memory-copy h2{font:500 37px/1.08 Georgia,serif;margin:0 0 8px;max-width:480px}.memory-copy p{margin:0 0 17px;color:rgba(255,255,255,.76);font-size:13px;line-height:1.6}.memory-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.glass-btn{border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.13);color:#fff;border-radius:999px;padding:11px 15px;font-weight:800;backdrop-filter:blur(12px)}
+.home-stats{display:flex;gap:16px;margin:14px 2px 2px;overflow:auto;padding-bottom:2px}.home-stat{min-width:92px}.home-stat strong{font:500 24px Georgia,serif;display:block}.home-stat span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.journey-card{position:relative;overflow:hidden;border-radius:31px;background:linear-gradient(150deg,#102b38,#091a23);color:#fff;min-height:330px;box-shadow:var(--shadow);isolation:isolate}.journey-card:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 75% 15%,rgba(74,145,172,.24),transparent 32%),linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:auto,36px 36px,36px 36px;pointer-events:none}.journey-top{position:absolute;left:20px;right:20px;top:18px;z-index:4;display:flex;justify-content:space-between;align-items:flex-start}.journey-top small{display:block;color:rgba(255,255,255,.54);font-size:9px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:3px}.journey-top strong{font:500 31px Georgia,serif}.journey-badge{font-size:11px;padding:8px 11px;border-radius:999px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(12px)}
+.mini-map-art{position:absolute;inset:66px 78px 76px 78px;display:grid;place-items:center}.mini-map-art svg{width:100%;height:100%;filter:drop-shadow(0 15px 20px rgba(0,0,0,.24))}.mini-map-art .japan-land path{fill:rgba(239,244,241,.18);stroke:rgba(255,255,255,.13);stroke-width:1}.home-pin-layer{position:absolute;inset:0;pointer-events:none}.home-pin{position:absolute;width:9px;height:9px;border-radius:50%;background:#ff815e;box-shadow:0 0 0 4px rgba(255,129,94,.15),0 0 18px rgba(255,129,94,.9);transform:translate(-50%,-50%)}.home-pin.hot{width:12px;height:12px;box-shadow:0 0 0 5px rgba(255,129,94,.18),0 0 24px rgba(255,129,94,1)}
+.journey-bottom{position:absolute;left:20px;right:20px;bottom:17px;z-index:4;display:flex;align-items:end;justify-content:space-between;gap:16px}.journey-copy b{font:500 16px Georgia,serif;display:block;margin-bottom:4px}.journey-copy span{font-size:11px;color:rgba(255,255,255,.58)}.journey-progress{width:105px}.journey-progress-track{height:5px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden}.journey-progress-bar{height:100%;background:linear-gradient(90deg,#ff815e,#efb06a);border-radius:999px}.journey-progress em{display:block;font-style:normal;text-align:right;font-size:10px;color:rgba(255,255,255,.50);margin-top:5px}.next-destination{margin-top:11px;padding:15px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px}.next-destination small{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}.next-destination b{font:800 18px "Arial Rounded MT Bold","Hiragino Maru Gothic ProN",sans-serif}.next-destination .compass{font-size:27px}
+.photo-strip{display:grid;grid-template-columns:1.35fr .8fr .8fr;grid-template-rows:102px 102px;gap:5px;border-radius:25px;overflow:hidden}.photo-strip .memory-photo{background:var(--surface2) center/cover;position:relative}.photo-strip .memory-photo:first-child{grid-row:1/3}.photo-strip .memory-photo:after{content:"";position:absolute;inset:0;border:1px solid rgba(255,255,255,.08)}
+
+@media (min-width:680px){main{padding-left:24px;padding-right:24px}.album-grid{grid-template-columns:repeat(3,1fr)}.photo-grid{grid-template-columns:repeat(4,1fr)}}
+
+/* Pop travel-journal refresh */
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 5% 4%,rgba(255,174,190,.22),transparent 24%),radial-gradient(circle at 96% 18%,rgba(112,202,232,.18),transparent 25%);z-index:-1}
+.logo{background:linear-gradient(135deg,var(--forest),#8a71ed);border-radius:16px;transform:rotate(-5deg)}
+.brand h1{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Rounded","SF Pro Display",sans-serif;font-weight:800;letter-spacing:-.04em}
+.section-title h3{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Rounded","SF Pro Display",sans-serif;font-weight:800;letter-spacing:-.035em}
+.home-memory{border-radius:34px!important;box-shadow:0 20px 50px rgba(104,78,111,.16)!important}
+.home-memory:before{content:"✦";position:absolute;right:18px;top:15px;width:45px;height:45px;border-radius:50%;display:grid;place-items:center;background:#ffd96b;color:#5f4c00;font-size:20px;transform:rotate(10deg);box-shadow:0 8px 20px rgba(0,0,0,.12)}
+.home-stats{gap:10px!important;background:transparent!important}
+.home-stat{border-radius:20px!important;background:var(--surface)!important;border:1px solid var(--line);box-shadow:0 8px 25px rgba(80,55,95,.07)}
+.home-stat:nth-child(1){transform:rotate(-1deg)}.home-stat:nth-child(2){transform:rotate(1deg)}.home-stat:nth-child(3){transform:rotate(-.5deg)}
+.journey-card{background:linear-gradient(150deg,#6e74ef,#4957d2)!important}.journey-badge{background:#ffd96b!important;color:#554713!important;border:0!important;font-weight:800}.journey-progress-bar{background:linear-gradient(90deg,#ff7c82,#ffd064)!important}
+.next-destination{background:linear-gradient(135deg,#fff,#fff5df)!important}.next-destination .compass{width:48px;height:48px;border-radius:18px;display:grid;place-items:center;background:#75d7e6;transform:rotate(8deg)}
+.trip-card{border-radius:30px!important}.chip{font-weight:700}.primary{background:linear-gradient(135deg,var(--accent),#ff8e65)!important;box-shadow:0 8px 18px rgba(255,107,107,.22)}
+
+/* Travel Poster */
+.poster-shell{padding:6px 0 22px}.poster-toolbar{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:14px}.poster-preview-wrap{overflow:auto;border-radius:24px;background:var(--surface2);padding:14px;border:1px solid var(--line)}
+.poster-a4{width:210mm;height:297mm;background:#fff;color:#222;position:relative;overflow:hidden;margin:0 auto;transform-origin:top left;box-shadow:0 18px 60px rgba(0,0,0,.18);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.poster-a4 .poster-bg{position:absolute;inset:0;background:linear-gradient(150deg,#fff8f1 0 61%,#eef8ff 61% 100%)}
+.poster-a4 .poster-sticker{position:absolute;right:12mm;top:12mm;background:#ffd968;border-radius:999px;padding:4mm 6mm;font-weight:900;font-size:10pt;transform:rotate(5deg)}
+.poster-a4 .poster-head{position:absolute;left:14mm;top:14mm;right:14mm;z-index:2}.poster-a4 .poster-kicker{font-size:9pt;font-weight:900;letter-spacing:.14em;color:#5d63df;text-transform:uppercase}.poster-a4 h1{font-size:34pt;line-height:.95;margin:4mm 0 3mm;letter-spacing:-.04em;max-width:150mm}.poster-a4 .poster-sub{font-size:11pt;font-weight:650;color:#5a5662}
+.poster-a4 .poster-hero{position:absolute;left:14mm;right:14mm;top:57mm;height:92mm;border-radius:8mm;overflow:hidden;background:linear-gradient(135deg,#6b75e9,#76cfdb);box-shadow:0 8mm 18mm rgba(73,72,113,.18)}.poster-a4 .poster-hero img{width:100%;height:100%;object-fit:cover}.poster-a4 .poster-hero:after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 55%,rgba(18,18,35,.35))}
+.poster-a4 .poster-mini-grid{position:absolute;left:14mm;right:14mm;top:155mm;height:50mm;display:grid;grid-template-columns:1.2fr .8fr .8fr;gap:4mm}.poster-a4 .poster-mini{border-radius:5mm;overflow:hidden;background:#eee}.poster-a4 .poster-mini img{width:100%;height:100%;object-fit:cover}
+.poster-a4 .poster-info{position:absolute;left:14mm;right:14mm;top:213mm;display:grid;grid-template-columns:1.15fr .85fr;gap:8mm}.poster-a4 .poster-copy h2{font-size:13pt;margin:0 0 3mm}.poster-a4 .poster-copy p{font-size:9.5pt;line-height:1.65;margin:0;color:#55515c;white-space:pre-wrap}.poster-a4 .poster-facts{display:grid;grid-template-columns:1fr 1fr;gap:3mm}.poster-a4 .poster-fact{border-radius:4mm;background:#fff;border:1px solid #eee2da;padding:4mm}.poster-a4 .poster-fact small{font-size:7pt;color:#8a8290;text-transform:uppercase;font-weight:800;letter-spacing:.06em}.poster-a4 .poster-fact b{display:block;font-size:13pt;margin-top:1mm}.poster-a4 .poster-footer{position:absolute;left:14mm;right:14mm;bottom:10mm;display:flex;justify-content:space-between;align-items:end;border-top:1px solid #e5dcd4;padding-top:4mm;font-size:8pt;color:#7a7380}.poster-a4 .poster-mark{font-weight:950;font-size:12pt;color:#5d63df}
+.poster-empty-photo{height:100%;display:grid;place-items:center;color:#fff;font-size:20pt;font-weight:900;background:linear-gradient(135deg,#6d74ea,#64c4d7)}
+
+/* Poster templates */
+.poster-template-picker{display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px;margin-bottom:2px;-webkit-overflow-scrolling:touch}.poster-template-btn{flex:0 0 auto;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:999px;padding:9px 12px;font-weight:800}.poster-template-btn.active{background:var(--text);color:var(--bg);border-color:var(--text)}
+/* Magazine */
+.poster-a4.theme-magazine .poster-bg{background:linear-gradient(150deg,#fff8f1 0 61%,#eef8ff 61% 100%)}
+/* Cinema */
+.poster-a4.theme-cinema{background:#0b0b10;color:#fff;font-family:"Arial Rounded MT Bold","Hiragino Maru Gothic ProN",sans-serif}.poster-a4.theme-cinema .poster-bg{background:radial-gradient(circle at 75% 20%,rgba(231,71,60,.35),transparent 32%),linear-gradient(180deg,#101017,#050507)}.poster-a4.theme-cinema .poster-head{top:15mm}.poster-a4.theme-cinema .poster-kicker{color:#ffcf70;letter-spacing:.22em}.poster-a4.theme-cinema h1{font-size:38pt;text-transform:uppercase;max-width:175mm}.poster-a4.theme-cinema .poster-sub{color:#d4d0da}.poster-a4.theme-cinema .poster-sticker{background:#d33b35;color:#fff;border-radius:2mm;transform:none}.poster-a4.theme-cinema .poster-hero{left:0;right:0;top:0;height:188mm;border-radius:0;box-shadow:none;z-index:0}.poster-a4.theme-cinema .poster-hero:after{background:linear-gradient(180deg,rgba(5,5,7,.25) 0%,rgba(5,5,7,.1) 42%,#09090d 93%)}.poster-a4.theme-cinema .poster-head,.poster-a4.theme-cinema .poster-sticker{z-index:3}.poster-a4.theme-cinema .poster-mini-grid{top:190mm;height:36mm;left:14mm;right:14mm;grid-template-columns:repeat(3,1fr)}.poster-a4.theme-cinema .poster-mini{border-radius:1mm;filter:saturate(.9) contrast(1.05)}.poster-a4.theme-cinema .poster-info{top:232mm;color:#eee}.poster-a4.theme-cinema .poster-copy p{color:#c9c4ce}.poster-a4.theme-cinema .poster-fact{background:#15151c;border-color:#2c2b34;color:#fff;border-radius:1mm}.poster-a4.theme-cinema .poster-fact small{color:#aaa2b3}.poster-a4.theme-cinema .poster-footer{color:#8f8998;border-color:#2f2c35}.poster-a4.theme-cinema .poster-mark{color:#ffcf70}
+/* Polaroid scrapbook */
+.poster-a4.theme-polaroid{background:#fffdf6;color:#2d2a29;font-family:"Arial Rounded MT Bold","Hiragino Maru Gothic ProN",sans-serif}.poster-a4.theme-polaroid .poster-bg{background:radial-gradient(circle at 20% 20%,#ffd9e3 0 4mm,transparent 4.3mm),radial-gradient(circle at 84% 76%,#c9f1ff 0 5mm,transparent 5.3mm),linear-gradient(#fffdf7,#fff9ec)}.poster-a4.theme-polaroid .poster-sticker{background:#98e2d5;color:#15483f;transform:rotate(-4deg);box-shadow:2mm 2mm 0 #fff}.poster-a4.theme-polaroid .poster-kicker{color:#ff6f7d}.poster-a4.theme-polaroid h1{font-size:31pt;transform:rotate(-1deg)}.poster-a4.theme-polaroid .poster-hero{left:20mm;right:22mm;top:61mm;height:88mm;border-radius:1mm;background:#fff;padding:5mm 5mm 13mm;box-shadow:0 4mm 8mm rgba(60,45,35,.18);transform:rotate(-1.5deg)}.poster-a4.theme-polaroid .poster-hero:after{display:none}.poster-a4.theme-polaroid .poster-mini-grid{top:157mm;height:53mm;gap:7mm;transform:rotate(.5deg)}.poster-a4.theme-polaroid .poster-mini{background:#fff;border-radius:1mm;padding:3mm 3mm 9mm;box-shadow:0 3mm 7mm rgba(60,45,35,.14)}.poster-a4.theme-polaroid .poster-mini:nth-child(1){transform:rotate(2deg)}.poster-a4.theme-polaroid .poster-mini:nth-child(2){transform:rotate(-2deg)}.poster-a4.theme-polaroid .poster-mini:nth-child(3){transform:rotate(1deg)}.poster-a4.theme-polaroid .poster-info{top:218mm}.poster-a4.theme-polaroid .poster-fact{background:#fff8c7;border:0;border-radius:5mm}.poster-a4.theme-polaroid .poster-footer{border-top:2px dashed #e3cbbf}.poster-a4.theme-polaroid .poster-mark{color:#ff6f7d}
+/* Minimal photobook */
+.poster-a4.theme-minimal{background:#f7f5ef;color:#191919;font-family:"Arial Rounded MT Bold","Hiragino Maru Gothic ProN",sans-serif}.poster-a4.theme-minimal .poster-bg{background:#f7f5ef}.poster-a4.theme-minimal .poster-sticker{display:none}.poster-a4.theme-minimal .poster-head{top:18mm;left:18mm;right:18mm}.poster-a4.theme-minimal .poster-kicker{color:#111;font-size:7pt;letter-spacing:.28em}.poster-a4.theme-minimal h1{font-size:29pt;font-weight:500;letter-spacing:-.03em;margin-top:6mm}.poster-a4.theme-minimal .poster-sub{font-size:9pt;color:#666;font-weight:400}.poster-a4.theme-minimal .poster-hero{left:18mm;right:18mm;top:62mm;height:116mm;border-radius:0;box-shadow:none}.poster-a4.theme-minimal .poster-hero:after{display:none}.poster-a4.theme-minimal .poster-mini-grid{top:184mm;left:18mm;right:18mm;height:34mm;grid-template-columns:repeat(3,1fr);gap:2mm}.poster-a4.theme-minimal .poster-mini{border-radius:0}.poster-a4.theme-minimal .poster-info{left:18mm;right:18mm;top:225mm;grid-template-columns:1.35fr .65fr;gap:12mm}.poster-a4.theme-minimal .poster-copy h2{text-transform:uppercase;letter-spacing:.14em;font-size:8pt}.poster-a4.theme-minimal .poster-copy p{font-size:8.5pt;color:#444}.poster-a4.theme-minimal .poster-facts{grid-template-columns:1fr;border-left:1px solid #bbb;padding-left:6mm}.poster-a4.theme-minimal .poster-fact{background:transparent;border:0;border-bottom:1px solid #ddd;border-radius:0;padding:2mm 0}.poster-a4.theme-minimal .poster-fact b{font-size:10pt}.poster-a4.theme-minimal .poster-footer{left:18mm;right:18mm;color:#555;border-color:#bbb}.poster-a4.theme-minimal .poster-mark{color:#111;font-weight:600;letter-spacing:.08em}
+
+
+/* Unified pop typography */
+:root{--pop-font:"Arial Rounded MT Bold","Hiragino Maru Gothic ProN","Yu Gothic",-apple-system,BlinkMacSystemFont,sans-serif}
+html,body,button,input,select,textarea,.poster-a4,.poster-a4 *{font-family:var(--pop-font)!important}
+
+/* Printed-poster album */
+.album-book-stage{display:grid;place-items:center;min-height:58vh;padding:24px 8px}.album-book{width:min(320px,78vw);aspect-ratio:3/4.15;border-radius:18px 30px 30px 18px;background:linear-gradient(105deg,#7d111b 0 7%,#a51f2b 8% 88%,#6f0d16 100%);position:relative;box-shadow:0 26px 60px rgba(74,15,23,.28),inset -10px 0 20px rgba(55,0,8,.24);color:#ffe5ad;padding:30px 26px;text-align:center;display:flex;flex-direction:column;justify-content:center;align-items:center;border:2px solid rgba(255,226,164,.25)}
+.album-book:before{content:"";position:absolute;left:13px;top:8px;bottom:8px;width:7px;border-radius:8px;background:linear-gradient(90deg,rgba(255,255,255,.08),rgba(0,0,0,.22))}.album-book:after{content:"";position:absolute;inset:18px;border:1px solid rgba(255,226,164,.46);border-radius:10px 22px 22px 10px;pointer-events:none}.album-book .book-mark{font-size:34px;margin-bottom:12px}.album-book h3{font-size:29px;line-height:1.15;margin:0 0 8px;letter-spacing:.03em}.album-book p{margin:0;color:#f6c884;font-size:12px}.album-book .book-count{margin-top:22px;border:1px solid rgba(255,226,164,.5);border-radius:999px;padding:8px 13px;font-size:12px}.album-book-hint{text-align:center;color:var(--muted);font-size:12px;margin-top:10px}
+.album-page-list{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:18px}.album-page-thumb{background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:18px;padding:8px;overflow:hidden;text-align:left}.album-page-paper{aspect-ratio:210/297;background:#fff;border-radius:9px;overflow:hidden;position:relative}.album-page-paper .poster-a4{transform:scale(.18);transform-origin:top left;box-shadow:none;margin:0;width:210mm;height:297mm}.album-page-thumb h4{margin:9px 3px 2px;font-size:13px}.album-page-thumb small{color:var(--muted);font-size:10px}
+.album-reader{position:fixed;inset:0;background:#111018;z-index:200;display:none;color:white;touch-action:pan-y}.album-reader.open{display:block}.reader-topbar{position:absolute;left:0;right:0;top:0;z-index:6;padding:calc(10px + env(safe-area-inset-top)) 12px 10px;display:flex;align-items:center;gap:8px;background:linear-gradient(rgba(8,7,13,.92),rgba(8,7,13,.38),transparent);transition:transform .25s,opacity .25s}.album-reader.menu-hidden .reader-topbar{transform:translateY(-110%);opacity:0}.reader-topbar button{border:1px solid rgba(255,255,255,.18);background:rgba(25,23,34,.72);color:white;border-radius:999px;padding:10px 13px;font-weight:800}.reader-title{flex:1;min-width:0;text-align:center}.reader-title b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.reader-title small{color:rgba(255,255,255,.6)}.reader-search{position:absolute;left:12px;right:12px;top:calc(62px + env(safe-area-inset-top));z-index:7;display:none}.reader-search.open{display:block}.reader-search input{width:100%;border:1px solid rgba(255,255,255,.18);background:rgba(20,18,29,.94);color:#fff;border-radius:16px;padding:12px 14px}.reader-stage{position:absolute;inset:0;display:grid;place-items:center;padding:calc(62px + env(safe-area-inset-top)) 12px calc(28px + env(safe-area-inset-bottom));overflow:hidden}.reader-paper{width:min(94vw,67vh);aspect-ratio:210/297;position:relative;background:#fff;box-shadow:0 25px 80px rgba(0,0,0,.45);overflow:hidden;border-radius:3px;transition:transform .2s ease,opacity .2s}.reader-paper .poster-a4{position:absolute;left:0;top:0;transform-origin:top left;box-shadow:none;margin:0}.reader-page-indicator{position:absolute;bottom:calc(8px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);z-index:6;background:rgba(18,16,25,.74);border:1px solid rgba(255,255,255,.15);border-radius:999px;padding:7px 11px;color:rgba(255,255,255,.82);font-size:11px}.reader-empty{color:rgba(255,255,255,.7);text-align:center;padding:30px}.bottom-nav{grid-template-columns:repeat(5,1fr)}
+@media(max-width:700px){.poster-preview-wrap{height:560px}.poster-a4{transform:scale(.47);margin-bottom:-158mm}}
+@media(min-width:701px){.poster-preview-wrap{height:820px}.poster-a4{transform:scale(.72);margin-bottom:-83mm}}
+@page{size:A4 portrait;margin:0}
+@media print{
+  html,body{background:#fff!important;margin:0!important;padding:0!important;width:210mm!important;height:297mm!important;overflow:hidden!important}
+  body *{visibility:hidden!important}
+  #posterPrintRoot,#posterPrintRoot *{visibility:visible!important}
+  #posterPrintRoot{position:fixed!important;inset:0!important;width:210mm!important;height:297mm!important;margin:0!important;padding:0!important;z-index:99999!important}
+  #posterPrintRoot .poster-a4{transform:none!important;box-shadow:none!important;margin:0!important;width:210mm!important;height:297mm!important}
+}
+
+
+/* === Pastel travel-app visual refresh === */
+:root{
+  --bg:#fffaf5;--surface:#fffefa;--surface2:#fff3e6;--text:#2d2b39;--muted:#85808f;--line:rgba(74,65,91,.09);
+  --accent:#ff646d;--accent2:#ffbd58;--forest:#6266ef;--sea:#50c7d4;--success:#3fc291;
+  --shadow:0 16px 38px rgba(92,72,91,.10);--nav:rgba(255,253,249,.93);
+}
+html[data-theme="dark"]{
+  --bg:#181721;--surface:#23212d;--surface2:#302b38;--text:#fff9f3;--muted:#bcb6c2;--line:rgba(255,255,255,.08);
+  --accent:#ff7079;--accent2:#ffc96a;--forest:#8b8dff;--sea:#65d6df;--nav:rgba(29,27,37,.94);
+}
+body{background:radial-gradient(circle at 14% 8%,rgba(255,210,218,.22),transparent 22%),radial-gradient(circle at 88% 16%,rgba(182,235,248,.18),transparent 22%),var(--bg)}
+.app{max-width:760px}
+header{padding:calc(18px + env(safe-area-inset-top)) 22px 16px;align-items:center}
+.pop-brand{width:100%;justify-content:center;position:relative}.pop-brand .logo{position:absolute;left:0}
+.pop-brand h1{font-size:25px!important;letter-spacing:.13em!important;background:linear-gradient(90deg,#ff6f79 0 18%,#ffbd58 22% 39%,#55bce6 43% 60%,#ff9a82 65% 81%,#ff6f79 86%);-webkit-background-clip:text;background-clip:text;color:transparent;text-align:center}
+.pop-brand small{text-align:center;text-transform:none!important;letter-spacing:.02em!important;color:var(--text)!important;font-size:11px!important;font-weight:800}
+.pop-camera{width:40px!important;height:40px!important;background:transparent!important;color:var(--accent)!important;box-shadow:none!important;border:2px solid var(--accent)!important;border-radius:13px!important;transform:none!important;font-size:0!important}
+.pop-camera:before{content:"";width:15px;height:15px;border:2px solid var(--accent);border-radius:50%;position:absolute}.pop-camera:after{content:"✦";position:absolute!important;right:-7px!important;top:-9px!important;color:#ffc255!important;font-size:13px!important}
+.pop-menu{position:absolute;right:20px;top:calc(21px + env(safe-area-inset-top));border:0!important;background:transparent!important;color:var(--accent)!important;font-size:25px!important;box-shadow:none!important;width:40px!important;height:40px!important}
+main{padding:4px 22px 36px}.section-title{margin-top:30px}.section-title h3{font-size:19px!important}.link-btn{color:var(--accent)!important}
+.home-memory{min-height:340px!important;border-radius:25px!important;box-shadow:0 14px 32px rgba(73,92,111,.15)!important}
+.home-memory:before{content:""!important;inset:0!important;width:auto!important;height:auto!important;border-radius:0!important;background:linear-gradient(180deg,rgba(7,20,30,.03) 0%,rgba(7,20,30,.08) 42%,rgba(7,20,30,.72) 100%)!important;transform:none!important;box-shadow:none!important}
+.home-memory:after{content:""!important;background:none!important}
+.memory-kicker{left:16px!important;top:16px!important;background:var(--accent)!important;border:0!important;color:white!important;letter-spacing:.03em!important;text-transform:none!important;font-size:11px!important;padding:9px 13px!important;box-shadow:0 7px 18px rgba(255,100,109,.25)}
+.memory-copy{left:20px!important;right:20px!important;bottom:19px!important}.memory-copy h2{font-size:28px!important;font-weight:900!important;line-height:1.15!important;margin-bottom:7px!important}.memory-copy p{font-size:12px!important;margin-bottom:13px!important}.glass-btn{background:var(--accent)!important;border:0!important;padding:12px 19px!important;float:right;box-shadow:0 8px 22px rgba(255,100,109,.30)}
+.journey-card{min-height:340px!important;background:linear-gradient(135deg,#fff2d7 0%,#f8f9ef 42%,#dff6fb 100%)!important;color:var(--text)!important;border:1px solid rgba(95,86,115,.06)!important;box-shadow:0 14px 32px rgba(100,86,93,.10)!important}
+.journey-card:before{background:radial-gradient(circle at 14% 18%,rgba(255,210,112,.20),transparent 28%),radial-gradient(circle at 87% 32%,rgba(90,211,226,.22),transparent 26%)!important;background-size:auto!important}
+.journey-top{top:20px!important}.journey-top small{color:#6c6877!important;font-weight:900!important}.journey-top strong{color:#2f2b3b!important;font-size:37px!important;font-weight:900!important}.journey-top strong::first-letter{color:var(--forest)}
+.journey-badge{background:#ff6f79!important;color:#fff!important;padding:8px 13px!important;box-shadow:0 8px 16px rgba(255,100,109,.19)}
+.mini-map-art{inset:70px 44px 63px 120px!important}.mini-map-art .japan-land path{fill:#dddde3!important;stroke:#fff!important;stroke-width:1.7!important;filter:drop-shadow(0 5px 4px rgba(76,75,92,.08))}.home-pin{background:#ff6f79!important}.journey-bottom{bottom:18px!important;color:var(--text)!important}.journey-copy b{font-size:14px!important;font-weight:900!important}.journey-copy span{color:#777180!important}.journey-progress-track{background:#e9e6eb!important}.journey-progress-bar{background:linear-gradient(90deg,#5d66ee,#52cbd7)!important}.journey-progress em{color:#807b88!important}
+.next-destination{margin-top:14px!important;padding:17px 19px!important;border-radius:23px!important;background:linear-gradient(135deg,#fff0bb,#fff7d7)!important;border:0!important;box-shadow:0 10px 24px rgba(119,100,55,.08)!important}.next-destination small{font-weight:900!important}.next-destination b{font-size:17px!important}.next-destination .compass{background:#39c9c9!important;color:#fff!important;border-radius:16px!important;box-shadow:none!important}
+.recent-strip{display:flex;gap:13px;overflow-x:auto;padding:0 1px 8px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}.recent-strip::-webkit-scrollbar{display:none}.recent-mini{flex:0 0 142px;scroll-snap-align:start}.recent-mini-photo{height:132px;border-radius:16px;background:linear-gradient(135deg,#dbeef4,#f2e7db);background-size:cover;background-position:center;position:relative;overflow:hidden;box-shadow:0 8px 18px rgba(80,78,91,.10)}.recent-mini-photo:after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 60%,rgba(8,13,16,.28))}.recent-mini-photo span{position:absolute;left:8px;top:8px;z-index:2;background:#53d2bd;color:#fff;border-radius:999px;padding:5px 8px;font-size:9px;font-weight:900}.recent-mini:nth-child(2n) .recent-mini-photo span{background:#b27cf0}.recent-mini:nth-child(3n) .recent-mini-photo span{background:#58bce8}.recent-mini:nth-child(4n) .recent-mini-photo span{background:#ff7c91}.recent-mini-photo button{position:absolute;right:7px;top:6px;z-index:2;border:0;background:transparent;color:#fff;font-size:21px}.recent-mini>b{display:block;font-size:12px;margin:8px 2px 2px}.recent-mini>small{display:block;color:var(--muted);font-size:9px;margin:0 2px}
+.map-wrap{background:linear-gradient(145deg,#f5f0ff 0%,#e7f8fb 48%,#fff3db 100%)!important;box-shadow:0 14px 32px rgba(85,76,105,.10)!important}.map-wrap:before{background:radial-gradient(circle at 15% 20%,rgba(255,198,117,.18),transparent 22%),radial-gradient(circle at 82% 28%,rgba(83,203,220,.18),transparent 25%)!important}.map-wrap:after{color:#726d7a!important}.map-wrap .japan-land path{fill:#d9d9df!important;stroke:#fff!important;stroke-width:1.5!important}.map-caption{color:#302d3c!important}.map-caption small{color:#787282!important}.map-caption strong{color:#5f64ea!important}.map-legend{padding-top:10px}
+.album-grid{gap:14px}.album-thumb{border-radius:17px!important;box-shadow:0 8px 18px rgba(78,75,92,.10)}.album-body h4{font-size:15px!important}.album-body p{font-size:10px!important}
+.album-book-stage{min-height:430px;padding-top:10px}.album-book{transform:rotate(-3deg);box-shadow:0 24px 55px rgba(95,31,37,.24),inset -10px 0 20px rgba(55,0,8,.22)}.album-book:after{border:2px solid rgba(255,220,151,.55)}.album-page-thumb{border:0!important;box-shadow:0 8px 20px rgba(75,70,88,.10)!important}
+.bottom-nav{bottom:10px!important;width:min(716px,calc(100% - 28px))!important;background:rgba(255,254,251,.95)!important;border:1px solid rgba(77,68,86,.07)!important;border-radius:26px!important;padding:8px 7px calc(8px + env(safe-area-inset-bottom))!important;box-shadow:0 14px 34px rgba(73,66,82,.13)!important}.nav-btn{font-size:10px!important;color:#77727e!important}.nav-btn b{font-size:21px!important}.nav-btn.active{color:var(--accent)!important}.nav-add b{width:48px!important;height:48px!important;margin:-22px auto 3px!important;background:var(--accent)!important;font-size:30px!important;box-shadow:0 10px 22px rgba(255,100,109,.31)!important}
+.card{border-color:rgba(75,68,88,.07)!important}.primary{background:var(--accent)!important}.chip{background:#fff5ec!important}
+html[data-theme="dark"] .journey-card{background:linear-gradient(135deg,#322d3d,#263942)!important;color:#fff!important}html[data-theme="dark"] .journey-top strong,html[data-theme="dark"] .journey-bottom{color:#fff!important}html[data-theme="dark"] .journey-copy span,html[data-theme="dark"] .journey-top small,html[data-theme="dark"] .journey-progress em{color:#c4bec9!important}html[data-theme="dark"] .next-destination{background:linear-gradient(135deg,#393325,#303038)!important}html[data-theme="dark"] .bottom-nav{background:rgba(31,29,39,.95)!important}
+@media(max-width:430px){main{padding-left:18px;padding-right:18px}.home-memory{min-height:326px!important}.journey-card{min-height:326px!important}.mini-map-art{inset:72px 32px 62px 110px!important}.recent-mini{flex-basis:126px}.recent-mini-photo{height:122px}.pop-brand h1{font-size:22px!important;letter-spacing:.10em!important}}
+
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="brand pop-brand"><div class="logo pop-camera" aria-hidden="true">⌁</div><div><h1>TRIP MEMORY</h1><small>旅の思い出を、ずっとそばに。</small></div></div>
+  <button class="icon-btn pop-menu" id="settingsBtn" aria-label="メニュー">☰</button>
+</header>
+<main>
+  <section id="homeView" class="view active">
+    <div id="homeMemoryHero" class="home-memory">
+      <div class="memory-kicker" id="homeMemoryKicker">YOUR MEMORY</div>
+      <div class="memory-copy">
+        <h2 id="homeMemoryTitle">旅の写真を、もう一度。</h2>
+        <p id="homeMemoryMeta">旅行を登録すると、ここに思い出の一枚が大きく表示されます。</p>
+        <div class="memory-actions"><button class="glass-btn" id="homeMemoryOpen">アルバムを見る</button></div>
+      </div>
+    </div>
+
+    <div class="section-title"><h3>旅の日本地図</h3><button class="link-btn" data-nav="map">地図を開く</button></div>
+    <div class="journey-card" id="homeJourneyCard">
+      <div class="journey-top"><div><small>Journey progress</small><strong id="homeMapCount">0 / 47</strong></div><div class="journey-badge" id="travelerBadge">旅のはじまり</div></div>
+      <div class="mini-map-art" aria-label="訪問都道府県マップ">
+        <svg viewBox="0 0 570 755" role="img" aria-label="日本列島地図" xmlns="http://www.w3.org/2000/svg">
+          <g class="japan-land">
+            <path d="M 218.2,499.6 L 221.7,512.0 L 206.4,534.0 L 195.2,522.3 L 181.3,530.8 L 174.1,552.0 L 156.4,541.6 L 156.6,524.4 L 171.7,502.8 L 187.1,507.0 L 198.3,491.8 L 218.2,499.6 Z"/>
+            <path d="M 390.2,391.1 L 380.0,420.0 L 384.7,438.2 L 370.6,463.7 L 335.9,480.8 L 288.2,483.0 L 249.5,524.4 L 231.3,510.5 L 230.2,483.4 L 183.0,491.4 L 150.8,508.4 L 119.1,509.1 L 146.6,535.8 L 128.5,597.4 L 110.9,612.7 L 97.8,598.6 L 104.4,565.9 L 87.3,555.4 L 76.2,530.5 L 101.9,519.3 L 116.1,496.6 L 143.4,477.8 L 163.3,453.0 L 217.4,442.2 L 246.4,449.6 L 274.8,385.2 L 292.9,402.5 L 332.7,366.3 L 348.1,352.2 L 365.2,307.8 L 360.5,267.1 L 372.0,244.2 L 400.9,237.5 L 415.7,287.8 L 414.9,317.2 L 389.8,353.7 L 390.2,391.1 Z"/>
+            <path d="M 469.8,136.2 L 488.9,143.9 L 508.1,128.6 L 514.2,169.2 L 473.9,179.2 L 450.1,215.2 L 407.5,190.4 L 392.7,230.1 L 362.5,230.6 L 358.8,194.6 L 372.2,166.7 L 401.2,164.7 L 409.1,114.5 L 417.1,86.3 L 449.0,124.0 L 469.8,136.2 Z"/>
+            <path d="M77 666 C72 661 73 654 80 651 C87 648 94 652 95 658 C96 665 88 670 77 666 Z"/><path d="M103 638 C99 635 100 629 105 627 C110 625 115 628 115 633 C114 638 109 640 103 638 Z"/><path d="M126 613 C123 610 124 606 128 604 C132 603 136 606 135 610 C134 614 130 615 126 613 Z"/><path d="M145 590 C142 588 143 584 146 582 C150 581 153 584 152 587 C151 590 148 591 145 590 Z"/>
+          </g>
+        </svg>
+        <div class="home-pin-layer" id="homePinLayer"></div>
+      </div>
+      <div class="journey-bottom"><div class="journey-copy"><b id="journeyMessage">最初の旅を記録しよう</b><span id="journeySub">訪れた場所が少しずつ地図に灯ります。</span></div><div class="journey-progress"><div class="journey-progress-track"><div class="journey-progress-bar" id="journeyProgressBar" style="width:0%"></div></div><em id="journeyPercent">0%</em></div></div>
+    </div>
+    <div class="card next-destination"><div><small>Next destination</small><b id="nextDestination">まだ行っていない県を探そう</b></div><div class="compass">⌁</div></div>
+
+    <div class="section-title"><h3>最近の旅行</h3><button class="link-btn" data-nav="album">すべて見る</button></div>
+    <div id="recentTrips"></div>
+
+  </section>
+
+  <section id="mapView" class="view">
+    <div class="section-title"><h3>あなたの旅行マップ</h3><span id="mapCount" class="chip">0 / 47</span></div>
+    <div class="card map-card"><div class="map-wrap" id="mapWrap">
+      <div class="map-art" aria-label="日本地図">
+        <svg class="japan-map-svg" viewBox="0 0 570 755" role="img" aria-label="日本列島地図" xmlns="http://www.w3.org/2000/svg">
+  <g class="japan-land">
+    <path d="M 218.2,499.6 L 221.7,512.0 L 206.4,534.0 L 195.2,522.3 L 181.3,530.8 L 174.1,552.0 L 156.4,541.6 L 156.6,524.4 L 171.7,502.8 L 187.1,507.0 L 198.3,491.8 L 218.2,499.6 Z"/>
+    <path d="M 390.2,391.1 L 380.0,420.0 L 384.7,438.2 L 370.6,463.7 L 335.9,480.8 L 288.2,483.0 L 249.5,524.4 L 231.3,510.5 L 230.2,483.4 L 183.0,491.4 L 150.8,508.4 L 119.1,509.1 L 146.6,535.8 L 128.5,597.4 L 110.9,612.7 L 97.8,598.6 L 104.4,565.9 L 87.3,555.4 L 76.2,530.5 L 101.9,519.3 L 116.1,496.6 L 143.4,477.8 L 163.3,453.0 L 217.4,442.2 L 246.4,449.6 L 274.8,385.2 L 292.9,402.5 L 332.7,366.3 L 348.1,352.2 L 365.2,307.8 L 360.5,267.1 L 372.0,244.2 L 400.9,237.5 L 415.7,287.8 L 414.9,317.2 L 389.8,353.7 L 390.2,391.1 Z"/>
+    <path d="M 469.8,136.2 L 488.9,143.9 L 508.1,128.6 L 514.2,169.2 L 473.9,179.2 L 450.1,215.2 L 407.5,190.4 L 392.7,230.1 L 362.5,230.6 L 358.8,194.6 L 372.2,166.7 L 401.2,164.7 L 409.1,114.5 L 417.1,86.3 L 449.0,124.0 L 469.8,136.2 Z"/>
+    <path d="M77 666 C72 661 73 654 80 651 C87 648 94 652 95 658 C96 665 88 670 77 666 Z"/>
+    <path d="M103 638 C99 635 100 629 105 627 C110 625 115 628 115 633 C114 638 109 640 103 638 Z"/>
+    <path d="M126 613 C123 610 124 606 128 604 C132 603 136 606 135 610 C134 614 130 615 126 613 Z"/>
+    <path d="M145 590 C142 588 143 584 146 582 C150 581 153 584 152 587 C151 590 148 591 145 590 Z"/>
+  </g>
+  <g class="map-detail-lines" aria-hidden="true">
+    <path d="M174 522 Q196 511 221 506"/>
+    <path d="M214 468 Q246 452 278 424"/>
+    <path d="M292 397 Q320 378 346 349"/>
+    <path d="M360 329 Q390 301 415 268"/>
+  </g>
+</svg>
+        <div class="map-pin-layer" id="mapPinLayer"></div>
+      </div>
+      <div class="map-caption"><div><small>Visited prefectures</small><strong id="mapBigCount">0 / 47</strong></div><small>Tap a pin to reopen a journey</small></div>
+    </div></div>
+    <div class="map-legend"><span>旅先を地図に記録</span><span id="visitedLabel">訪問済み 0</span></div></div>
+  </section>
+
+  <section id="albumView" class="view">
+    <div class="section-title"><h3>旅一覧</h3><button class="primary" id="albumAdd">＋ 旅行</button></div>
+    <div id="albumGrid" class="album-grid"></div>
+  </section>
+
+
+
+  <section id="bookView" class="view">
+    <div class="section-title"><h3>旅のアルバム</h3><span class="chip" id="albumPageCountChip">0 pages</span></div>
+    <div class="album-book-stage"><button class="album-book" id="openPrintedAlbum" type="button"><div class="book-mark">✦</div><h3>TRIP MEMORY<br>ALBUM</h3><p>PRINTED JOURNEYS</p><div class="book-count" id="albumBookCount">0 PAGES</div></button></div>
+    <div class="album-book-hint">ポスターをPDF出力すると、この赤い本に1ページずつ綴じられます。</div>
+    <div id="albumPageList" class="album-page-list"></div>
+  </section>
+
+  <section id="detailView" class="view"><div id="tripDetail"></div></section>
+</main>
+
+<nav class="bottom-nav">
+  <button class="nav-btn active" data-nav="home"><b>⌂</b>ホーム</button>
+  <button class="nav-btn" data-nav="map"><b>⌖</b>マップ</button>
+  <button class="nav-btn nav-add" id="navAdd"><b>＋</b>旅行追加</button>
+  <button class="nav-btn" data-nav="album"><b>▦</b>旅一覧</button>
+  <button class="nav-btn" data-nav="book"><b>▤</b>アルバム</button>
+</nav>
+</div>
+
+<div class="modal" id="tripModal"><div class="sheet"><div class="grab"></div><button class="sheet-close" data-close="tripModal">×</button><h3 id="tripModalTitle">新しい旅行</h3>
+  <div class="notice">まず旅行情報を保存し、その後に写真を追加します。Safariから直接選ぶ方法と、iPhoneショートカットから取り込む方法の両方に対応します。</div>
+  <form id="tripForm" class="form-card card">
+    <input type="hidden" id="tripId" />
+    <div class="field"><label>旅行名 *</label><input id="tripName" required placeholder="例：箱根旅行" /></div>
+    <div class="row"><div class="field"><label>開始日 *</label><input type="date" id="startDate" required /></div><div class="field"><label>終了日</label><input type="date" id="endDate" /></div></div>
+    <div class="row"><div class="field"><label>都道府県 *</label><select id="prefecture" required></select></div><div class="field"><label>エリア名</label><input id="areaName" placeholder="例：箱根" /></div></div>
+    <div class="field"><label>同行者</label><input id="companion" placeholder="例：彼女、友達、一人旅" /></div>
+    <div class="field"><label>ひとこと</label><textarea id="tripMemo" placeholder="旅行のメモ"></textarea></div>
+    <div class="form-actions"><button type="button" class="secondary" data-close="tripModal">キャンセル</button><button class="primary" type="submit">旅行を保存</button></div>
+  </form>
+</div></div>
+
+<div class="modal" id="photoModal"><div class="sheet"><div class="grab"></div><button class="sheet-close" data-close="photoModal">×</button><h3>写真を追加</h3>
+  <div id="photoTripName" class="notice success"></div>
+  <div class="card form-card">
+    <h4 style="margin-top:0">Safariから写真を選ぶ</h4>
+    <p class="hint">この方法では写真そのものを取り込めます。ブラウザの制約上、GPSは取得できない場合があります。位置情報を含めた自動整理はショートカット連携を推奨します。</p>
+    <label class="primary" style="display:inline-block">写真を選択<input class="file-input" id="photoInput" type="file" accept="image/*" multiple></label>
+    <div id="photoProgress" class="hint" style="margin-top:12px"></div>
+  </div>
+  <div class="card form-card" style="margin-top:12px"><h4 style="margin-top:0">ショートカット連携</h4><p class="hint">この「写真を追加」画面を開いたまま、Safariの共有シートから「Trip Memory 写真取込」を実行してください。撮影日時・位置情報付きで写真を受け取ります。</p><div class="chip" id="shortcutStatus">受信待機中</div><p class="hint" id="shortcutHelp" style="margin-top:8px">取込先の旅行を保持しています。</p><textarea id="shortcutBridge" aria-hidden="true" tabindex="-1" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0"></textarea></div>
+</div></div>
+
+
+<div class="modal" id="posterModal"><div class="sheet" style="max-width:900px"><div class="grab"></div><button class="sheet-close" data-close="posterModal">×</button>
+  <h3>Travel Poster</h3>
+  <p class="hint">A4縦・カラー。Safariの印刷画面から「PDFとして保存」またはそのまま印刷できます。</p>
+  <div class="poster-shell">
+    <div class="poster-template-picker" id="posterTemplatePicker">
+      <button class="poster-template-btn" data-poster-theme="magazine">✦ 旅行雑誌</button>
+      <button class="poster-template-btn" data-poster-theme="cinema">🎬 映画ポスター</button>
+      <button class="poster-template-btn" data-poster-theme="polaroid">📸 チェキアルバム</button>
+      <button class="poster-template-btn" data-poster-theme="minimal">▦ 写真集</button>
+    </div>
+    <div class="poster-toolbar"><button class="primary" id="posterPrintBtn">PDFに保存 / 印刷</button><button class="secondary" id="posterRefreshBtn">写真レイアウトを変更</button></div>
+    <div class="poster-preview-wrap"><div id="posterPrintRoot"></div></div>
+  </div>
+</div></div>
+
+<div class="modal" id="settingsModal"><div class="sheet"><div class="grab"></div><button class="sheet-close" data-close="settingsModal">×</button><h3>設定</h3>
+  <div class="card settings-list">
+    <div class="setting-row"><div><b>ダークモード</b><small>旅の写真を引き立てる暗色テーマ</small></div><button class="toggle" id="themeToggle" aria-label="ダークモード"><i></i></button></div>
+    <div class="setting-row"><div><b>バックアップを書き出す</b><small>旅行・場所・写真メタデータをJSON保存</small></div><button class="secondary" id="exportBtn">書出</button></div>
+    <div class="setting-row"><div><b>バックアップを読み込む</b><small>以前のJSONバックアップを復元</small></div><label class="secondary">読込<input class="file-input" type="file" id="importInput" accept="application/json"></label></div>
+    <div class="setting-row"><div><b>保存容量</b><small id="storageInfo">確認中…</small></div><button class="secondary" id="storageBtn">更新</button></div>
+    <div class="setting-row"><div><b>サンプル旅行</b><small>動作確認用データを1件追加</small></div><button class="secondary" id="sampleBtn">追加</button></div>
+    <div class="setting-row"><div><b class="danger">全データ削除</b><small>iPhone写真アプリの原本は削除されません</small></div><button class="secondary danger" id="clearBtn">削除</button></div>
+  </div>
+</div></div>
+
+<div class="album-reader" id="albumReader">
+  <div class="reader-topbar"><button id="readerClose">閉じる</button><button id="readerSearchBtn">検索</button><div class="reader-title"><b id="readerTitle">旅のアルバム</b><small id="readerMeta"></small></div><button id="readerReprint">再印刷</button></div>
+  <div class="reader-search" id="readerSearch"><input id="readerSearchInput" placeholder="旅行名・都道府県・日付で検索"></div>
+  <div class="reader-stage" id="readerStage"><div class="reader-paper" id="readerPaper"></div></div><div class="reader-page-indicator" id="readerIndicator">0 / 0</div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+const PREFS=["北海道","青森県","岩手県","宮城県","秋田県","山形県","福島県","茨城県","栃木県","群馬県","埼玉県","千葉県","東京都","神奈川県","新潟県","富山県","石川県","福井県","山梨県","長野県","岐阜県","静岡県","愛知県","三重県","滋賀県","京都府","大阪府","兵庫県","奈良県","和歌山県","鳥取県","島根県","岡山県","広島県","山口県","徳島県","香川県","愛媛県","高知県","福岡県","佐賀県","長崎県","熊本県","大分県","宮崎県","鹿児島県","沖縄県"];
+const PREF_POS={"北海道":[316,73],"青森県":[284,119],"岩手県":[273,139],"宮城県":[264,157],"秋田県":[252,135],"山形県":[245,155],"福島県":[242,174],"茨城県":[242,199],"栃木県":[226,190],"群馬県":[210,191],"埼玉県":[217,207],"千葉県":[240,219],"東京都":[219,219],"神奈川県":[210,230],"新潟県":[213,168],"富山県":[184,190],"石川県":[166,184],"福井県":[158,206],"山梨県":[198,216],"長野県":[192,199],"岐阜県":[172,217],"静岡県":[192,232],"愛知県":[171,235],"三重県":[157,244],"滋賀県":[146,226],"京都府":[133,222],"大阪府":[132,238],"兵庫県":[116,229],"奈良県":[145,243],"和歌山県":[135,257],"鳥取県":[95,225],"島根県":[73,227],"岡山県":[104,241],"広島県":[82,244],"山口県":[58,250],"徳島県":[105,263],"香川県":[111,253],"愛媛県":[86,267],"高知県":[94,280],"福岡県":[46,279],"佐賀県":[34,287],"長崎県":[24,297],"熊本県":[43,307],"大分県":[60,296],"宮崎県":[57,323],"鹿児島県":[44,340],"沖縄県":[43,367]};
+const DB_NAME='trip-memory-db', DB_VER=2; let db; let activePhotoTripId=null;
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+function uid(prefix='id'){return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2,9)}`}
+function esc(s=''){return String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),2200)}
+function openModal(id){$('#'+id).classList.add('open')} function closeModal(id){$('#'+id).classList.remove('open')}
+function req(store,mode='readonly'){return db.transaction(store,mode).objectStore(store)}
+function all(store){return new Promise((res,rej)=>{const r=req(store).getAll();r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+function put(store,val){return new Promise((res,rej)=>{const r=req(store,'readwrite').put(val);r.onsuccess=()=>res(val);r.onerror=()=>rej(r.error)})}
+function del(store,key){return new Promise((res,rej)=>{const r=req(store,'readwrite').delete(key);r.onsuccess=()=>res();r.onerror=()=>rej(r.error)})}
+function clearStore(store){return new Promise((res,rej)=>{const r=req(store,'readwrite').clear();r.onsuccess=()=>res();r.onerror=()=>rej(r.error)})}
+function initDB(){return new Promise((res,rej)=>{const r=indexedDB.open(DB_NAME,DB_VER);r.onupgradeneeded=e=>{const d=e.target.result;if(!d.objectStoreNames.contains('trips')) d.createObjectStore('trips',{keyPath:'id'});if(!d.objectStoreNames.contains('photos')) d.createObjectStore('photos',{keyPath:'id'});if(!d.objectStoreNames.contains('places')) d.createObjectStore('places',{keyPath:'id'});if(!d.objectStoreNames.contains('albumPages')) d.createObjectStore('albumPages',{keyPath:'id'});};r.onsuccess=()=>{db=r.result;res()};r.onerror=()=>rej(r.error)})}
+async function render(){const trips=(await all('trips')).sort((a,b)=>new Date(b.startDate)-new Date(a.startDate));const photos=await all('photos');const visited=[...new Set(trips.map(t=>t.prefecture).filter(Boolean))];$('#mapCount').textContent=`${visited.length} / 47`;$('#visitedLabel').textContent=`訪問済み ${visited.length}`;
+  renderHomeExperience(trips,photos,visited);renderRecent(trips,photos);renderAlbums(trips,photos);renderMap(trips,visited);renderPrintedAlbum(await all('albumPages'));updateStorage();}
+function coverFor(trip,photos){const p=photos.find(p=>p.id===trip.coverPhotoId)||photos.find(p=>p.tripId===trip.id);return p?.dataUrl||''}
+function renderHomeExperience(trips,photos,visited){
+  const hero=$('#homeMemoryHero'), title=$('#homeMemoryTitle'), meta=$('#homeMemoryMeta'), kicker=$('#homeMemoryKicker'), open=$('#homeMemoryOpen');
+  const now=new Date(), month=now.getMonth(), day=now.getDate();
+  const anniversary=photos.find(p=>{const d=new Date(p.takenAt||0);return d.getFullYear()<now.getFullYear()&&d.getMonth()===month&&Math.abs(d.getDate()-day)<=1});
+  const favorites=photos.filter(p=>p.favorite);const normalPool=favorites.length?favorites:photos;
+  const heroPhoto=anniversary || (normalPool.length?normalPool[(new Date().getDate()+normalPool.length)%normalPool.length]:null);
+  const heroTrip=heroPhoto?trips.find(t=>t.id===heroPhoto.tripId):trips[0];
+  if(heroPhoto){
+    hero.style.backgroundImage=`url('${heroPhoto.dataUrl}')`;title.textContent=heroTrip?.name||'旅の思い出';
+    meta.textContent=`${(heroPhoto.takenAt||heroTrip?.startDate||'').slice(0,10)}${heroTrip?.areaName||heroTrip?.prefecture?` · ${heroTrip?.areaName||heroTrip?.prefecture}`:''}`;
+    kicker.textContent=anniversary===heroPhoto?'あの頃の今日':favorites.includes(heroPhoto)?'FAVORITE MEMORY':'思い出を振り返る';
+    open.textContent='この旅を見返す';open.onclick=()=>heroTrip?openTrip(heroTrip.id):showView('album');
+  }else{
+    hero.style.backgroundImage='';title.textContent='旅の写真を、もう一度。';meta.textContent='旅行を登録すると、ここに思い出の一枚が大きく表示されます。';kicker.textContent='思い出を振り返る';open.textContent='アルバムを見る';open.onclick=()=>showView('album');
+  }
+  const count=visited.length,pct=Math.round(count/47*100);$('#homeMapCount').textContent=`${count} / 47`;$('#journeyPercent').textContent=`${pct}%`;$('#journeyProgressBar').style.width=`${pct}%`;
+  let badge='旅のはじまり',msg='最初の旅を記録しよう',sub='訪れた場所が少しずつ地図に灯ります。';
+  if(count>=47){badge='JAPAN COMPLETE ✦';msg='47都道府県、旅の記録が完成';sub='日本中の思い出が、この地図につながりました。'}
+  else if(count>=35){badge='Master Traveler';msg=`全国制覇まであと ${47-count}県`;sub='地図のほとんどが、あなたの思い出になりました。'}
+  else if(count>=24){badge='Half of Japan';msg='日本の半分を旅しました';sub=`あと ${47-count}県。次はどこへ行こう？`}
+  else if(count>=10){badge='Explorer';msg=`${count}都道府県に思い出があります`;sub='行った場所が増えるほど、地図が明るくなります。'}
+  else if(count>0){badge='Traveler';msg=`${count}都道府県を旅しました`;sub=`あと ${Math.max(0,10-count)}県で Explorer`}
+  $('#travelerBadge').textContent=badge;$('#journeyMessage').textContent=msg;$('#journeySub').textContent=sub;
+  const layer=$('#homePinLayer');layer.innerHTML='';const freq={};trips.forEach(t=>{if(t.prefecture)freq[t.prefecture]=(freq[t.prefecture]||0)+1});Object.entries(freq).forEach(([pref,n])=>{const pos=PREF_POS[pref];if(!pos)return;const dot=document.createElement('i');dot.className='home-pin'+(n>=3?' hot':'');dot.style.left=`${pos[0]/360*100}%`;dot.style.top=`${pos[1]/430*100}%`;layer.appendChild(dot)});
+  const unvisited=PREFS.filter(p=>!visited.includes(p));if(unvisited.length){const seed=(trips.length*7+new Date().getMonth()+new Date().getDate())%unvisited.length;$('#nextDestination').textContent=`${unvisited[seed]} はまだ未訪問`;}else $('#nextDestination').textContent='47都道府県すべて訪問済み ✦';
+}
+function renderRecent(trips,photos){const wrap=$('#recentTrips');if(!trips.length){wrap.innerHTML='<div class="card empty"><div class="emoji">🧳</div><b>まだ旅行がありません</b><div class="hint">下の「旅行追加」から最初の思い出を登録しましょう。</div></div>';return}wrap.innerHTML=`<div class="recent-strip">${trips.slice(0,8).map(t=>{const c=coverFor(t,photos);return `<article class="recent-mini" data-trip="${t.id}"><div class="recent-mini-photo" style="${c?`background-image:url('${c}')`:''}"><span>${esc(t.prefecture||'旅の記録')}</span><button type="button" aria-label="お気に入り">♡</button></div><b>${esc(t.name)}</b><small>${esc(t.startDate)}${t.endDate?` – ${esc(t.endDate)}`:''}</small></article>`}).join('')}</div>`;$$('[data-trip]').forEach(el=>el.onclick=()=>openTrip(el.dataset.trip));}
+function renderAlbums(trips,photos){const g=$('#albumGrid');if(!trips.length){g.innerHTML='<div class="card empty" style="grid-column:1/-1"><div class="emoji">📚</div><b>アルバムはまだ空です</b></div>';return}g.innerHTML=trips.map(t=>{const c=coverFor(t,photos);const pc=photos.filter(p=>p.tripId===t.id).length;return `<div class="card album-card" data-trip="${t.id}"><div class="album-thumb" style="${c?`background-image:url('${c}')`:''}"></div><div class="album-body"><h4>${esc(t.name)}</h4><p>${esc(t.startDate)} · 📷 ${pc}</p></div></div>`}).join('');$$('#albumGrid [data-trip]').forEach(el=>el.onclick=()=>openTrip(el.dataset.trip));}
+function renderMap(trips,visited){$('#mapBigCount').textContent=`${visited.length} / 47`;const layer=$('#mapPinLayer');if(!layer)return;layer.innerHTML='';const grouped={};trips.forEach(t=>{if(t.prefecture&&!grouped[t.prefecture]) grouped[t.prefecture]=t});Object.values(grouped).forEach(t=>{const pos=PREF_POS[t.prefecture];if(!pos)return;const b=document.createElement('button');b.className='pin';b.innerHTML='<span>pin</span>';b.style.left=`${pos[0]/360*100}%`;b.style.top=`${pos[1]/430*100}%`;b.title=t.areaName||t.prefecture;b.onclick=()=>openTrip(t.id);layer.appendChild(b)});}
+function renderPrefList(visited){}
+async function openTrip(id){const trips=await all('trips'), photos=await all('photos'), places=await all('places');const t=trips.find(x=>x.id===id);if(!t)return;const tp=photos.filter(p=>p.tripId===id).sort((a,b)=>new Date(a.takenAt)-new Date(b.takenAt));const c=coverFor(t,photos);const pByPlace={};tp.forEach(p=>{const k=p.placeId||'unknown';(pByPlace[k]??=[]).push(p)});let blocks='';for(const [pid,arr] of Object.entries(pByPlace)){const place=places.find(x=>x.id===pid);blocks+=`<div class="card place-block form-card"><div class="section-title" style="margin-top:0"><h3>📍 ${esc(place?.name||'場所未設定')}</h3><span class="chip">${arr.length} Photos</span></div><div class="photo-grid">${arr.map(p=>`<div class="photo" style="background-image:url('${p.dataUrl}')"><button data-fav="${p.id}">${p.favorite?'♥':'♡'}</button></div>`).join('')}</div></div>`}
+$('#tripDetail').innerHTML=`<button class="secondary" id="backAlbum" style="margin-bottom:12px">← 戻る</button><div class="detail-head" style="${c?`background-image:url('${c}')`:''}"><div class="inner"><h2>${esc(t.name)}</h2><p>${esc(t.startDate)}${t.endDate?` – ${esc(t.endDate)}`:''}</p><p>📍 ${esc(t.areaName||t.prefecture||'')}</p>${t.companion?`<p>👥 ${esc(t.companion)}</p>`:''}</div></div>${t.memo?`<div class="card form-card" style="margin-top:14px"><b>旅のメモ</b><p style="white-space:pre-wrap">${esc(t.memo)}</p></div>`:''}<div class="inline-actions" style="margin-top:14px"><button class="primary" id="addPhotosDetail">＋ 写真を追加</button><button class="secondary" id="posterTrip">▣ A4ポスター</button><button class="secondary" id="editTrip">旅行を編集</button><button class="secondary danger" id="deleteTrip">旅行を削除</button></div>${blocks||'<div class="card empty" style="margin-top:14px"><div class="emoji">📷</div>写真を追加すると、ここにアルバムができます。</div>'}`;
+showView('detail');$('#backAlbum').onclick=()=>showView('album');$('#addPhotosDetail').onclick=()=>openPhotoModal(t.id);$('#posterTrip').onclick=()=>openTripPoster(t.id);$('#editTrip').onclick=()=>openTripModal(t);$('#deleteTrip').onclick=()=>deleteTripCascade(t.id);$$('[data-fav]').forEach(b=>b.onclick=async()=>{const p=tp.find(x=>x.id===b.dataset.fav);p.favorite=!p.favorite;await put('photos',p);b.textContent=p.favorite?'♥':'♡';toast(p.favorite?'お気に入りに追加しました':'お気に入りを解除しました')});}
+function showView(name){const map={home:'homeView',map:'mapView',album:'albumView',book:'bookView',detail:'detailView'};$$('.view').forEach(v=>v.classList.remove('active'));$('#'+map[name]).classList.add('active');$$('.nav-btn[data-nav]').forEach(b=>b.classList.toggle('active',b.dataset.nav===name));window.scrollTo({top:0,behavior:'smooth'})}
+function openTripModal(t=null){$('#tripModalTitle').textContent=t?'旅行を編集':'新しい旅行';$('#tripId').value=t?.id||'';$('#tripName').value=t?.name||'';$('#startDate').value=t?.startDate||new Date().toISOString().slice(0,10);$('#endDate').value=t?.endDate||'';$('#prefecture').value=t?.prefecture||'神奈川県';$('#areaName').value=t?.areaName||'';$('#companion').value=t?.companion||'';$('#tripMemo').value=t?.memo||'';openModal('tripModal')}
+async function saveTrip(e){e.preventDefault();const id=$('#tripId').value||uid('trip');const existing=(await all('trips')).find(t=>t.id===id);const t={...existing,id,name:$('#tripName').value.trim(),startDate:$('#startDate').value,endDate:$('#endDate').value,prefecture:$('#prefecture').value,areaName:$('#areaName').value.trim(),companion:$('#companion').value.trim(),memo:$('#tripMemo').value.trim(),createdAt:existing?.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString()};await put('trips',t);closeModal('tripModal');await render();toast('旅行を保存しました');if(!existing)openPhotoModal(id);else openTrip(id)}
+async function deleteTripCascade(id){if(!confirm('この旅行をTrip Memoryから削除しますか？\niPhone写真アプリの原本は削除されません。'))return;const photos=await all('photos'), places=await all('places');for(const p of photos.filter(x=>x.tripId===id))await del('photos',p.id);for(const p of places.filter(x=>x.tripId===id))await del('places',p.id);await del('trips',id);await render();showView('album');toast('旅行を削除しました')}
+function openPhotoModal(id){activePhotoTripId=id;try{sessionStorage.setItem('tripMemoryImportTripId',id)}catch{};all('trips').then(ts=>{$('#photoTripName').textContent=`${ts.find(t=>t.id===id)?.name||'旅行'} に写真を追加`});$('#photoInput').value='';$('#photoProgress').textContent='';const st=$('#shortcutStatus');if(st)st.textContent='受信待機中';const hp=$('#shortcutHelp');if(hp)hp.textContent='共有シートからショートカットを実行してください。';openModal('photoModal');installShortcutBridge()}
+function resizeFile(file,max=1280,q=.72){return new Promise((res,rej)=>{const img=new Image();const url=URL.createObjectURL(file);img.onload=()=>{let w=img.width,h=img.height;if(Math.max(w,h)>max){const r=max/Math.max(w,h);w=Math.round(w*r);h=Math.round(h*r)}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);URL.revokeObjectURL(url);res(c.toDataURL('image/jpeg',q))};img.onerror=rej;img.src=url})}
+async function importFiles(files){if(!activePhotoTripId)return;const list=[...files].slice(0,30);for(let i=0;i<list.length;i++){const f=list[i];$('#photoProgress').textContent=`${i+1} / ${list.length} を処理中…`;const dataUrl=await resizeFile(f);await put('photos',{id:uid('photo'),tripId:activePhotoTripId,placeId:null,takenAt:new Date(f.lastModified||Date.now()).toISOString(),latitude:null,longitude:null,dataUrl,favorite:false,memo:'',createdAt:new Date().toISOString()})}await assignUnknownPlace(activePhotoTripId);$('#photoProgress').textContent=`✓ ${list.length}枚を取り込みました`;await render();toast(`${list.length}枚の写真を追加しました`)}
+async function assignUnknownPlace(tripId){const photos=await all('photos'), places=await all('places');let unk=places.find(p=>p.tripId===tripId&&p.name==='場所未設定');if(!unk){unk={id:uid('place'),tripId,name:'場所未設定',latitude:null,longitude:null};await put('places',unk)}for(const p of photos.filter(p=>p.tripId===tripId&&!p.placeId)){p.placeId=unk.id;await put('photos',p)} }
+async function clusterShortcutPhotos(tripId,newPhotos){const radius=300;const places=(await all('places')).filter(p=>p.tripId===tripId&&p.latitude!=null);const distance=(a,b,c,d)=>{const R=6371000,to=x=>x*Math.PI/180,dp=to(c-a),dl=to(d-b),s=Math.sin(dp/2)**2+Math.cos(to(a))*Math.cos(to(c))*Math.sin(dl/2)**2;return 2*R*Math.asin(Math.sqrt(s))};for(const p of newPhotos){let place=null;if(p.latitude!=null&&p.longitude!=null){place=places.find(x=>distance(p.latitude,p.longitude,x.latitude,x.longitude)<=radius);if(!place){place={id:uid('place'),tripId,name:'場所名を設定',latitude:p.latitude,longitude:p.longitude};places.push(place);await put('places',place)}}if(!place){place=places.find(x=>x.name==='場所未設定');if(!place){place={id:uid('place'),tripId,name:'場所未設定',latitude:null,longitude:null};places.push(place);await put('places',place)}}p.placeId=place.id;await put('photos',p)}}
+
+function parseShortcutBridgeText(raw){
+  const text=String(raw||'').trim();
+  if(!text)return {photos:[]};
+  // JSONで来た場合にも対応。
+  if(text[0]==='{'){try{return JSON.parse(text)}catch{}}
+  // ショートカット側の安定用フォーマット: 1写真=1行、項目区切りは |||
+  const photos=text.split(/\r?\n/).filter(Boolean).map(line=>{
+    const parts=line.split('|||');
+    if(parts.length<4)return null;
+    const num=v=>{if(v==null||v===''||v==='null')return null;const n=Number(String(v).replace(',','.'));return Number.isFinite(n)?n:null};
+    return {
+      takenAt:parts[0]||null,
+      latitude:num(parts[1]),
+      longitude:num(parts[2]),
+      image:parts.slice(3).join('|||')
+    };
+  }).filter(Boolean);
+  return {photos};
+}
+
+function installShortcutBridge(){
+  const bridge=$('#shortcutBridge');
+  if(!bridge||bridge.dataset.observerInstalled==='1')return;
+  bridge.dataset.observerInstalled='1';
+  const receive=async()=>{
+    const raw=bridge.value||bridge.textContent||'';
+    if(!raw.trim())return;
+    // 同じ内容の二重取込を避ける。
+    const token=bridge.getAttribute('data-transfer-id')||'';
+    if(token&&bridge.dataset.lastHandled===token)return;
+    if(token)bridge.dataset.lastHandled=token;
+    try{
+      const payload=parseShortcutBridgeText(raw);
+      const result=await window.tripMemoryImport(payload);
+      bridge.setAttribute('data-result',JSON.stringify(result||{}));
+    }catch(e){
+      bridge.setAttribute('data-result',JSON.stringify({ok:false,error:String(e?.message||e)}));
+    }finally{
+      bridge.value='';
+      bridge.textContent='';
+    }
+  };
+  new MutationObserver(receive).observe(bridge,{attributes:true,attributeFilter:['data-transfer-id']});
+}
+
+window.tripMemoryImport=async function(payload){
+  const status=$('#shortcutStatus'), help=$('#shortcutHelp');
+  const setStatus=(text,detail='')=>{if(status)status.textContent=text;if(help&&detail)help.textContent=detail};
+  try{
+    setStatus('受信中…','ショートカットから写真データを受け取っています。');
+    if(payload==null)throw new Error('ショートカットからデータを受信できませんでした。');
+
+    // Shortcutsから文字列で渡された場合はJSONとして解釈する。
+    if(typeof payload==='string'){
+      const text=payload.trim();
+      try{payload=JSON.parse(text)}catch{
+        throw new Error('受信データをJSONとして読み取れませんでした。ショートカットの「テキスト」に最後の辞書を指定してください。');
+      }
+    }
+    if(typeof payload!=='object')throw new Error('受信データの形式が正しくありません。');
+
+    let tripId=payload.tripId||activePhotoTripId;
+    if(!tripId){try{tripId=sessionStorage.getItem('tripMemoryImportTripId')}catch{}}
+    if(!tripId)throw new Error('取込先の旅行が選ばれていません。Trip Memoryで旅行を開き「＋ 写真を追加」を押してからショートカットを実行してください。');
+
+    const trips=await all('trips');
+    const targetTrip=trips.find(t=>t.id===tripId);
+    if(!targetTrip)throw new Error('取込先の旅行が見つかりません。写真追加画面を開き直してください。');
+
+    const incoming=Array.isArray(payload.photos)?payload.photos.slice(0,30):[];
+    if(!incoming.length)throw new Error('写真データが0枚でした。');
+
+    const saved=[];
+    for(const raw of incoming){
+      if(!raw||typeof raw!=='object')continue;
+      let image=raw.dataUrl||raw.image||raw.base64||'';
+      if(typeof image!=='string'||!image.trim())continue;
+      image=image.trim();
+      if(!/^data:image\//i.test(image)) image=`data:image/jpeg;base64,${image.replace(/\s/g,'')}`;
+
+      const num=v=>{if(v===null||v===undefined||v==='')return null;const n=Number(String(v).replace(',','.'));return Number.isFinite(n)?n:null};
+      let takenAt=raw.takenAt||raw.createdAt||raw.date||new Date().toISOString();
+      const d=new Date(takenAt);if(!Number.isNaN(d.getTime()))takenAt=d.toISOString();
+
+      saved.push({
+        id:uid('photo'),tripId,placeId:null,takenAt,
+        latitude:num(raw.latitude),longitude:num(raw.longitude),
+        dataUrl:image,favorite:false,memo:'',createdAt:new Date().toISOString()
+      });
+    }
+    if(!saved.length)throw new Error('画像データを読み取れる写真がありませんでした。');
+
+    await clusterShortcutPhotos(tripId,saved);
+    activePhotoTripId=tripId;
+    await render();
+    setStatus(`✓ ${saved.length}枚 取込完了`,`${targetTrip.name} に追加しました。GPS付き写真は近い地点ごとに自動整理されています。`);
+    toast(`${saved.length}枚をショートカットから取り込みました`);
+    return {ok:true,count:saved.length,tripId,tripName:targetTrip.name};
+  }catch(e){
+    console.error(e);
+    const msg=String(e?.message||e||'不明なエラー');
+    setStatus('取込エラー',msg);
+    toast('ショートカット取込に失敗しました');
+    return {ok:false,error:msg};
+  }
+};
+
+let currentPosterSpec=null;
+let currentPosterTheme=localStorage.getItem('tripMemoryPosterTheme')||'magazine';
+function posterPhotoCell(p){return p?`<img src="${p.dataUrl}" alt="旅の写真">`:'<div class="poster-empty-photo">TRIP<br>MEMORY</div>'}
+function posterMarkup(spec,theme=currentPosterTheme){
+  const photos=spec.photos||[], main=photos[0], minis=[photos[1],photos[2],photos[3]];
+  const memo=(spec.memo||'').trim()||'写真と場所をたどりながら、この旅の思い出を一枚にまとめました。';
+  return `<div class="poster-a4 theme-${theme}"><div class="poster-bg"></div><div class="poster-sticker">${esc(spec.sticker||'TRAVEL MEMORY')}</div>
+    <div class="poster-head"><div class="poster-kicker">Trip Memory · A4 Travel Poster</div><h1>${esc(spec.title)}</h1><div class="poster-sub">${esc(spec.subtitle||'')}</div></div>
+    <div class="poster-hero">${posterPhotoCell(main)}</div>
+    <div class="poster-mini-grid">${minis.map(p=>`<div class="poster-mini">${posterPhotoCell(p)}</div>`).join('')}</div>
+    <div class="poster-info"><div class="poster-copy"><h2>About this journey</h2><p>${esc(memo.slice(0,280))}</p></div><div class="poster-facts">
+      <div class="poster-fact"><small>Destination</small><b>${esc(spec.destination||'-')}</b></div>
+      <div class="poster-fact"><small>Photos</small><b>${spec.photoCount||0}</b></div>
+      <div class="poster-fact"><small>Trips</small><b>${spec.tripCount||1}</b></div>
+      <div class="poster-fact"><small>Date</small><b style="font-size:9.5pt">${esc(spec.date||'-')}</b></div>
+    </div></div>
+    <div class="poster-footer"><div>${esc(spec.footer||'Print it. Keep it. Remember it.')}</div><div class="poster-mark">TRIP MEMORY ✦</div></div>
+  </div>`;
+}
+function renderPoster(){if(!currentPosterSpec)return;$('#posterPrintRoot').innerHTML=posterMarkup(currentPosterSpec);$$('[data-poster-theme]').forEach(b=>b.classList.toggle('active',b.dataset.posterTheme===currentPosterTheme))}
+function setPosterTheme(theme){currentPosterTheme=theme;localStorage.setItem('tripMemoryPosterTheme',theme);renderPoster();toast(`${({magazine:'旅行雑誌',cinema:'映画ポスター',polaroid:'チェキアルバム',minimal:'写真集'})[theme]||'ポスター'}風に変更しました`)}
+async function openTripPoster(tripId){
+  const trips=await all('trips'),photos=await all('photos'),t=trips.find(x=>x.id===tripId);if(!t)return;const tp=photos.filter(p=>p.tripId===tripId);
+  currentPosterSpec={sourceType:'trip',sourceId:t.id,title:t.name,subtitle:`${t.startDate}${t.endDate?` - ${t.endDate}`:''} · ${t.areaName||t.prefecture||''}`,destination:t.areaName||t.prefecture,photoCount:tp.length,tripCount:1,date:t.endDate?`${t.startDate} - ${t.endDate}`:t.startDate,memo:t.memo,photos:tp.slice(0,6),sticker:t.prefecture||'TRAVEL MEMORY',footer:t.companion?`With ${t.companion}`:'A page from your journey'};
+  renderPoster();openModal('posterModal');
+}
+async function openPrefPoster(pref){
+  const trips=await all('trips'),photos=await all('photos'),pts=trips.filter(t=>t.prefecture===pref);if(!pts.length)return;const ids=new Set(pts.map(t=>t.id)), pp=photos.filter(p=>ids.has(p.tripId));
+  const dates=pts.map(t=>t.startDate).filter(Boolean).sort(),areas=[...new Set(pts.map(t=>t.areaName).filter(Boolean))];
+  currentPosterSpec={sourceType:'prefecture',sourceId:pref,title:pref,subtitle:`${pts.length} trips · ${areas.slice(0,3).join(' / ')||'旅の記録'}`,destination:pref,photoCount:pp.length,tripCount:pts.length,date:dates.length?(dates.length===1?dates[0]:`${dates[0]} - ${dates[dates.length-1]}`):'-',memo:pts.map(t=>t.memo).filter(Boolean).slice(0,2).join('\n'),photos:pp.slice(0,6),sticker:'PREFECTURE EDITION',footer:`Memories from ${pref}`};
+  renderPoster();openModal('posterModal');
+}
+async function saveCurrentPosterToAlbum(){if(!currentPosterSpec)return null;const clone=JSON.parse(JSON.stringify(currentPosterSpec));const page={id:uid('album'),createdAt:new Date().toISOString(),theme:currentPosterTheme,spec:clone};await put('albumPages',page);renderPrintedAlbum(await all('albumPages'));return page}
+async function printPoster(){if(!currentPosterSpec)return;renderPoster();await saveCurrentPosterToAlbum();toast('アルバムに1ページ追加しました');setTimeout(()=>window.print(),120)}
+
+
+let albumReaderPages=[],albumReaderFiltered=[],albumReaderIndex=0,albumTouchX=0;
+function pageSearchText(p){const x=p.spec||{};return [x.title,x.subtitle,x.destination,x.date,x.memo].filter(Boolean).join(' ').toLowerCase()}
+function renderPrintedAlbum(pages){pages=[...pages].sort((a,b)=>new Date(a.createdAt)-new Date(b.createdAt));const n=pages.length,chip=$('#albumPageCountChip'),count=$('#albumBookCount'),list=$('#albumPageList');if(chip)chip.textContent=`${n} pages`;if(count)count.textContent=`${n} PAGE${n===1?'':'S'}`;if(!list)return;if(!n){list.innerHTML='<div class="card empty" style="grid-column:1/-1"><div class="emoji">📕</div><b>まだページがありません</b><div class="hint">旅行ポスターをPDF出力すると自動で追加されます。</div></div>';return}list.innerHTML=pages.slice().reverse().map(p=>`<button class="album-page-thumb" data-album-page="${p.id}"><div class="album-page-paper">${posterMarkup(p.spec,p.theme)}</div><h4>${esc(p.spec?.title||'Travel Poster')}</h4><small>${esc((p.createdAt||'').slice(0,10))} · ${esc(({magazine:'旅行雑誌',cinema:'映画',polaroid:'チェキ',minimal:'写真集'})[p.theme]||p.theme)}</small></button>`).join('');$$('[data-album-page]').forEach(b=>b.onclick=()=>openAlbumReader(pages.findIndex(p=>p.id===b.dataset.albumPage),pages))}
+function scaleReaderPoster(){const paper=$('#readerPaper'),poster=paper?.querySelector('.poster-a4');if(!paper||!poster)return;poster.style.transform=`scale(${paper.clientWidth/793})`;poster.style.width='210mm';poster.style.height='297mm'}
+function renderAlbumReaderPage(){const p=albumReaderFiltered[albumReaderIndex],paper=$('#readerPaper');if(!p){paper.innerHTML='<div class="reader-empty">検索条件に一致するページがありません。</div>';$('#readerIndicator').textContent='0 / 0';return}paper.innerHTML=posterMarkup(p.spec,p.theme);$('#readerTitle').textContent=p.spec?.title||'旅のアルバム';$('#readerMeta').textContent=`${p.spec?.date||''} · ${p.spec?.destination||''}`;$('#readerIndicator').textContent=`${albumReaderIndex+1} / ${albumReaderFiltered.length}`;requestAnimationFrame(scaleReaderPoster)}
+async function openAlbumReader(index=0,pages=null){const ps=pages||await all('albumPages');albumReaderPages=[...ps].sort((a,b)=>new Date(a.createdAt)-new Date(b.createdAt));albumReaderFiltered=[...albumReaderPages];albumReaderIndex=Math.max(0,Math.min(index,Math.max(0,albumReaderFiltered.length-1)));$('#albumReader').classList.add('open');$('#albumReader').classList.remove('menu-hidden');$('#readerSearch').classList.remove('open');$('#readerSearchInput').value='';renderAlbumReaderPage()}
+function closeAlbumReader(){$('#albumReader').classList.remove('open')}
+function turnAlbumPage(delta){if(!albumReaderFiltered.length)return;const next=albumReaderIndex+delta;if(next<0||next>=albumReaderFiltered.length)return;const paper=$('#readerPaper');paper.style.transform=`translateX(${delta>0?'-18%':'18%'})`;paper.style.opacity='.25';setTimeout(()=>{albumReaderIndex=next;paper.style.transform='translateX(0)';paper.style.opacity='1';renderAlbumReaderPage()},120)}
+async function reprintAlbumPage(){const p=albumReaderFiltered[albumReaderIndex];if(!p)return;currentPosterSpec=JSON.parse(JSON.stringify(p.spec));currentPosterTheme=p.theme;renderPoster();setTimeout(()=>window.print(),100)}
+
+async function exportBackup(){const data={version:2,exportedAt:new Date().toISOString(),trips:await all('trips'),places:await all('places'),photos:await all('photos'),albumPages:await all('albumPages')};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`trip-memory-backup-${new Date().toISOString().slice(0,10)}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);toast('バックアップを書き出しました')}
+async function importBackup(file){const data=JSON.parse(await file.text());if(!data.trips||!data.photos)throw new Error('形式が正しくありません');for(const s of ['trips','places','photos','albumPages'])for(const item of (data[s]||[]))await put(s,item);await render();toast('バックアップを読み込みました')}
+async function updateStorage(){if(!navigator.storage?.estimate){$('#storageInfo').textContent='この環境では取得できません';return}const s=await navigator.storage.estimate(),fmt=n=>n>1e9?`${(n/1e9).toFixed(1)} GB`:`${(n/1e6).toFixed(1)} MB`;$('#storageInfo').textContent=`使用 ${fmt(s.usage||0)} / 上限目安 ${fmt(s.quota||0)}`}
+async function addSample(){const id=uid('trip');const trip={id,name:'箱根旅行（サンプル）',startDate:'2026-08-10',endDate:'2026-08-11',prefecture:'神奈川県',areaName:'箱根',companion:'',memo:'動作確認用のサンプル旅行です。',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};await put('trips',trip);await render();toast('サンプル旅行を追加しました')}
+async function clearAll(){if(!confirm('Trip Memoryの全データを削除しますか？\nこの操作は元に戻せません。\niPhone写真アプリの写真は削除されません。'))return;for(const s of ['trips','photos','places','albumPages'])await clearStore(s);await render();closeModal('settingsModal');showView('home');toast('全データを削除しました')}
+function applyTheme(theme){const dark=theme==='dark';document.documentElement.dataset.theme=dark?'dark':'light';localStorage.setItem('tripMemoryTheme',dark?'dark':'light');const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.setAttribute('content',dark?'#0e1211':'#f4f1ea');const t=$('#themeToggle');if(t)t.classList.toggle('on',dark)}
+function initTheme(){const saved=localStorage.getItem('tripMemoryTheme');const preferred=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';applyTheme(saved||preferred)}
+function toggleTheme(){applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark')}
+function wire(){PREFS.forEach(p=>$('#prefecture').insertAdjacentHTML('beforeend',`<option>${p}</option>`));$$('[data-nav]').forEach(b=>b.onclick=()=>showView(b.dataset.nav));$('#navAdd').onclick=()=>openTripModal();$('#albumAdd').onclick=()=>openTripModal();$('#settingsBtn').onclick=()=>openModal('settingsModal');$('#themeToggle').onclick=toggleTheme;$$('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close));$$('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModal(m.id)}));$('#tripForm').onsubmit=saveTrip;$('#photoInput').onchange=e=>importFiles(e.target.files);$('#exportBtn').onclick=exportBackup;$('#importInput').onchange=async e=>{try{await importBackup(e.target.files[0])}catch(err){alert('バックアップの読み込みに失敗しました。')}};$('#storageBtn').onclick=updateStorage;$('#sampleBtn').onclick=addSample;$('#clearBtn').onclick=clearAll;$('#posterPrintBtn').onclick=printPoster;$('#posterRefreshBtn').onclick=()=>{if(currentPosterSpec?.photos?.length>1){currentPosterSpec.photos=[...currentPosterSpec.photos.slice(1),currentPosterSpec.photos[0]];renderPoster();toast('写真レイアウトを入れ替えました')}};$$('[data-poster-theme]').forEach(b=>b.onclick=()=>setPosterTheme(b.dataset.posterTheme));$('#openPrintedAlbum').onclick=()=>openAlbumReader(0);$('#readerClose').onclick=closeAlbumReader;$('#readerSearchBtn').onclick=()=>{$('#readerSearch').classList.toggle('open');if($('#readerSearch').classList.contains('open'))$('#readerSearchInput').focus()};$('#readerReprint').onclick=reprintAlbumPage;$('#readerSearchInput').oninput=e=>{const q=e.target.value.trim().toLowerCase();albumReaderFiltered=q?albumReaderPages.filter(p=>pageSearchText(p).includes(q)):[...albumReaderPages];albumReaderIndex=0;renderAlbumReaderPage()};$('#readerStage').addEventListener('click',()=>$('#albumReader').classList.toggle('menu-hidden'));$('#readerStage').addEventListener('touchstart',e=>{albumTouchX=e.changedTouches[0].clientX},{passive:true});$('#readerStage').addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-albumTouchX;if(Math.abs(dx)>55)turnAlbumPage(dx<0?1:-1)},{passive:true});window.addEventListener('resize',()=>{if($('#albumReader').classList.contains('open'))scaleReaderPoster()})}
+(async()=>{try{initTheme();await initDB();wire();initTheme();await render()}catch(e){document.body.innerHTML=`<div style="padding:30px;font-family:-apple-system"><h2>Trip Memoryを開始できませんでした</h2><p>${esc(e.message||e)}</p></div>`}})();
+</script>
+</body>
+</html>
